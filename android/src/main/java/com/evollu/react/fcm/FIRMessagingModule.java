@@ -28,6 +28,7 @@ import java.util.Set;
 public class FIRMessagingModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
     private final static String TAG = FIRMessagingModule.class.getCanonicalName();
     Intent currentIntent;
+    private WritableMap initialData = null;
 
     public FIRMessagingModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -65,6 +66,11 @@ public class FIRMessagingModule extends ReactContextBaseJavaModule implements Li
     @ReactMethod
     public void unsubscribeFromTopic(String topic){
         FirebaseMessaging.getInstance().unsubscribeFromTopic(topic);
+    }
+
+    @ReactMethod
+    public void getInitialData(Promise promise){
+        promise.resolve(initialData);
     }
 
     private void sendEvent(String eventName, Object params) {
@@ -134,6 +140,11 @@ public class FIRMessagingModule extends ReactContextBaseJavaModule implements Li
         fcm.putString("action", newIntent.getAction());
         params.putMap("fcm", fcm);
         if (currentIntent == null){
+            try {
+                initialData = cloneWritableMap(params);
+            } catch(Exception e) {
+                System.out.println(e);
+            }
             //the first intent is initial intent that opens the app
             sendEvent("FCMInitData", params);
         } else {
@@ -148,6 +159,10 @@ public class FIRMessagingModule extends ReactContextBaseJavaModule implements Li
 
     @Override
     public void onHostDestroy() {
+    }
 
+    private WritableMap cloneWritableMap(WritableMap input)  {
+        Bundle bundle = Arguments.toBundle(input);
+        return Arguments.fromBundle(bundle);
     }
 }

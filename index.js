@@ -35,6 +35,10 @@ FCM.unsubscribeFromTopic = (topic) => {
     FIRMessaging.unsubscribeFromTopic(topic);
 };
 
+FCM.getInitialData = async () => {
+    return FIRMessaging.getInitialData ? FIRMessaging.getInitialData() : null;
+};
+
 //once doesn't seem to work
 DeviceEventEmitter.addListener('FCMInitData', (data)=>{
   FCM.initialData = data;
